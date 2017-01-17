@@ -11,7 +11,7 @@ import java.net.URL;
  */
 public class TileSet {
 
-    private Image setImage;
+    private Image[] setImage;
     private int nbX, nbY;
     private int tileHeight, tileWidth;
 
@@ -21,11 +21,16 @@ public class TileSet {
 
     public TileSet(Image setImage, int nbX, int nbY) {
         if (!(nbX >= 1 && nbY >= 1)) throw new AssertionError();
-        this.setImage = setImage;
         this.nbX = nbX;
         this.nbY = nbY;
+        this.setImage = new Image[nbX * nbY];
         tileHeight = (int) setImage.getHeight() / nbY;
         tileWidth = (int) setImage.getWidth() / nbX;
+        for (int i = 0; i < nbX; i++) {
+            for (int j = 0; j < nbY; j++) {
+                this.setImage[j * nbX + i] = new WritableImage(setImage.getPixelReader(), i * tileWidth, j * tileHeight, tileWidth, tileHeight);
+            }
+        }
     }
 
     public int getNbX() {
@@ -55,12 +60,10 @@ public class TileSet {
     }
 
     public Image getImageTile(int x, int y) {
-        if (!(x >= 0 && x < nbX && y >= 0 && y < nbY)) throw new AssertionError();
-        return new WritableImage(setImage.getPixelReader(), x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+        return getImageTile(y * nbX + x);
     }
 
     public Image getImageTile(int tileNumber) {
-        if (!(tileNumber >= 0 && tileNumber < nbX * nbY)) throw new AssertionError();
-        return getImageTile(tileNumber % nbX, tileNumber / nbX);
+        return setImage[tileNumber];
     }
 }
