@@ -41,7 +41,15 @@ public class Model {
 
     private Collection<Pair<Point2D, Image>> getImagesTilesArea(Rectangle2D rectangle2D) {
         Collection<Pair<Point2D, Image>> retour = new LinkedList<>();
-        rectangle2D = new Rectangle2D(Math.max(rectangle2D.getMinX(), 0), Math.max(rectangle2D.getMinY(), 0), Math.min(rectangle2D.getWidth(), level.getWidth()), Math.min(rectangle2D.getHeight(), level.getHeight()));
+        double w = Math.min(rectangle2D.getWidth(), level.getWidth());
+        double h = Math.min(rectangle2D.getHeight(), level.getHeight());
+        double y = Math.max(rectangle2D.getMinY(), 0);
+        double x = Math.max(rectangle2D.getMinX(), 0);
+        x = Math.min(x, level.getWidth() - w);
+        y = Math.min(y, level.getHeight() - h);
+
+
+        rectangle2D = new Rectangle2D(x, y, w, h);
         for (int i = (int) rectangle2D.getMinX() / level.getTileWidth(); i < rectangle2D.getMaxX() / level.getTileWidth(); i++) {
             for (int j = (int) rectangle2D.getMinY() / level.getTileHeight(); j < rectangle2D.getMaxY() / level.getTileHeight(); j++) {
                 retour.add(new Pair<>(new Point2D(i * level.getTileWidth(), j * level.getTileHeight()), level.getTile(i, j).getTile()));
