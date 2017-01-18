@@ -31,7 +31,7 @@ public class Main extends Application {
         game.widthProperty().bind(primaryStage.getScene().widthProperty());
 
         SimpleObjectProperty<Point2D> point = new SimpleObjectProperty<>(new Point2D(0, 0));
-        game.positionFollow().bind(point);
+        game.follow(point);
 
 
         game.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -63,6 +63,5 @@ public class Main extends Application {
 
         game.requestFocus();
         primaryStage.show();
-        game.centerFollow();
     }
 }

@@ -2,7 +2,7 @@ package jeu.view;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -20,7 +20,6 @@ import java.util.Collection;
 public class GameCanvas extends Canvas {
     private Point2D positionFenetre;
     private ObjectProperty<Point2D> positionFollow;
-    private SimpleIntegerProperty xFollow, yFollow, wFollow, hFollow;
     private Model model;
     private double widthLevel, heightLevel;
 
@@ -30,14 +29,8 @@ public class GameCanvas extends Canvas {
         this.heightLevel = heightLevel;
         this.model = model;
 
-        xFollow = new SimpleIntegerProperty(0);
-        yFollow = new SimpleIntegerProperty(0);
-        hFollow = new SimpleIntegerProperty(0);
-        wFollow = new SimpleIntegerProperty(0);
         positionFollow = new SimpleObjectProperty<>(new Point2D(0, 0));
 
-        wFollow.bind(widthProperty());
-        hFollow.bind(heightProperty());
 
         this.positionFenetre = new Point2D(0, 0);
         AnimationTimer at = new AnimationTimer() {
@@ -54,23 +47,11 @@ public class GameCanvas extends Canvas {
         GraphicsContext graphicsContext2D = getGraphicsContext2D();
         if (positionFollow.isBound()) {
 
+            Point2D centre = new Point2D(getWidth() / 2, getHeight() / 2);
+
             double x = 0, y = 0;
 
-            if (positionFollow.get().getX() > wFollow.get()) {
-                x = positionFollow.get().getX() - wFollow.get();
-            } else {
-                if (positionFollow.get().getX() < xFollow.get()) {
-                    x = positionFollow.get().getX() - xFollow.get();
-                }
-            }
-
-            if (positionFollow.get().getY() > hFollow.get()) {
-                y = positionFollow.get().getY() - hFollow.get();
-            } else {
-                if (positionFollow.get().getY() < yFollow.get()) {
-                    y = positionFollow.get().getY() - yFollow.get();
-                }
-            }
+            positionFenetre = positionFollow.get().subtract(centre);
 
             positionFenetre = positionFenetre.add(x, y);
 
@@ -106,24 +87,21 @@ public class GameCanvas extends Canvas {
             }
         }
 
-        graphicsContext2D.fillOval(positionFollow.get().getX(), positionFollow.get().getY(), 10, 10);
 
+        //dessin des lignes et du point
+        graphicsContext2D.fillOval(positionFollow.get().getX() - 5 - positionFenetre.getX(), positionFollow.get().getY() - 5 - positionFenetre.getY(), 10, 10);
+        graphicsContext2D.strokeLine(0, getHeight() / 2, getWidth(), getHeight() / 2);
+        graphicsContext2D.strokeLine(getWidth() / 2, 0, getWidth() / 2, getHeight());
+        //
 
     }
 
-    public void windowsFollow(Rectangle2D windows) {
-        xFollow.bind(widthProperty().negate().multiply(windows.getMinX()));
-        yFollow.bind(heightProperty().negate().multiply(windows.getMinY()));
-        wFollow.bind(widthProperty().negate().multiply(windows.getMaxX()));
-        hFollow.bind(heightProperty().negate().multiply(windows.getMaxY()));
+    public void follow(ReadOnlyObjectProperty<Point2D> point) {
+        positionFollow.bind(point);
     }
 
-    public void centerFollow() {
-        windowsFollow(new Rectangle2D(getWidth() / 2, getHeight() / 2, 0, 0));
-    }
-
-    public ObjectProperty<Point2D> positionFollow() {
-        return positionFollow;
+    public void unFollow() {
+        positionFollow.unbind();
     }
 
 }
