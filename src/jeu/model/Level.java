@@ -34,7 +34,7 @@ public class Level {
                         break;
 
                     case 4:
-                        obj = new Tuyaux_Droite(i * w, j * h);
+                        obj = new Tuyaux_Top_Droit(i * w, j * h);
                         break;
                     case 5:
                         obj = new Tuyaux_Gauche(i * w, j * h);

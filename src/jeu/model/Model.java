@@ -15,6 +15,7 @@ public class Model {
 
     private Level level;
 
+    
     public Model() {
         level = new Level(new int[][]
                         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
