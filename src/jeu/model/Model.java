@@ -16,8 +16,7 @@ public class Model {
     private Level level;
 
     public Model() {
-        level = new Level(this.getClass().getResource("/jeu/image/tileset.png"), 8, 1,
-                new int[][]
+        level = new Level(new int[][]
                         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -52,7 +51,7 @@ public class Model {
         rectangle2D = new Rectangle2D(x, y, w, h);
         for (int i = (int) rectangle2D.getMinX() / level.getTileWidth(); i < rectangle2D.getMaxX() / level.getTileWidth(); i++) {
             for (int j = (int) rectangle2D.getMinY() / level.getTileHeight(); j < rectangle2D.getMaxY() / level.getTileHeight(); j++) {
-                retour.add(new Pair<>(new Point2D(i * level.getTileWidth(), j * level.getTileHeight()), level.getTile(i, j).getTile()));
+                retour.add(new Pair<>(new Point2D(i * level.getTileWidth(), j * level.getTileHeight()), level.getObjet(i, j).getImage()));
             }
         }
         return retour;

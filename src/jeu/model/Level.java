@@ -1,47 +1,73 @@
 package jeu.model;
 
-import java.io.IOException;
-import java.net.URL;
+import jeu.model.objets.*;
 
 /**
  * Created by crede on 17/01/2017.
  */
 public class Level {
-    private TileSet tileSet;
-    private Tile tiles[][];
+    private Objet objets[][];
 
-    public Level(URL tileSetName, int nbX, int nbY, int[][] tileMap) {
-        try {
-            this.tileSet = new TileSet(ImageProvider.get(tileSetName), nbX, nbY);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        this.tiles = new Tile[tileMap.length][];
+    public Level(int[][] tileMap) {
+        int h = TileSetBlock.getInstance().getTileHeight();
+        int w = TileSetBlock.getInstance().getTileWidth();
+
+
+        this.objets = new Objet[tileMap.length][];
         for (int i = 0; i < tileMap.length; i++) {
-            tiles[i] = new Tile[tileMap[i].length];
+            objets[i] = new Objet[tileMap[i].length];
             for (int j = 0; j < tileMap[i].length; j++) {
-                tiles[i][j] = tileSet.getTile(tileMap[i][j]);
+                Objet obj = null;
+                switch (tileMap[i][j]) {
+                    case 0:
+                        obj = new Vide(i * w, j * h);
+                        break;
+                    case 1:
+                        obj = new PointInterogation(i * w, j * h);
+                        break;
+                    case 2:
+                        obj = new Brique(i * w, j * h);
+                        break;
+
+                    case 3:
+                        obj = new Tuyaux_Top_Gauche(i * w, j * h);
+                        break;
+
+                    case 4:
+                        obj = new Tuyaux_Droite(i * w, j * h);
+                        break;
+                    case 5:
+                        obj = new Tuyaux_Gauche(i * w, j * h);
+                        break;
+                    case 6:
+                        obj = new Tuyaux_Droite(i * w, j * h);
+                        break;
+                    case 7:
+                        obj = new Sol(i * w, j * h);
+                        break;
+                }
+                objets[i][j] = obj;
             }
         }
     }
 
     public int getTileHeight() {
-        return tileSet.getTileHeight();
+        return TileSetBlock.getInstance().getTileHeight();
     }
 
     public int getTileWidth() {
-        return tileSet.getTileWidth();
+        return TileSetBlock.getInstance().getTileWidth();
     }
 
-    public Tile getTile(int x, int y) {
-        return tiles[y][x];
+    public Objet getObjet(int x, int y) {
+        return objets[y][x];
     }
 
     public int getWidth() {
-        return tiles[0].length * getTileWidth();
+        return objets[0].length * getTileWidth();
     }
 
     public int getHeight() {
-        return tiles.length * getTileHeight();
+        return objets.length * getTileHeight();
     }
 }
