@@ -15,7 +15,9 @@ public class Model {
 
     private Level level;
 
-    
+
+    private LinkedList<Mouvant> mouvants;
+
     public Model() {
         level = new Level(new int[][]
                         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -31,6 +33,8 @@ public class Model {
                                 {0, 0, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                 {0, 0, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                 {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}});
+
+
     }
 
     public Collection<Collection<Pair<Point2D, Image>>> getImagesArea(Rectangle2D rectangle2D) {
