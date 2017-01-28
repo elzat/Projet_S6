@@ -44,29 +44,29 @@ public class Moteur_Physique {
         if (vx >= 0 && vy >= 0) {
             rect = new BoundingBox(limite.getMinX(), limite.getMinY(), limite.getWidth() + vx, vy + limite.getHeight());
         } else if (vx >= 0 && vy <= 0) {
-            rect = new BoundingBox(limite.getMinX(), limite.getMinY() + vy, limite.getWidth() + vx, vy + limite.getHeight());
+            rect = new BoundingBox(limite.getMinX(), limite.getMinY() + vy, limite.getWidth() + vx, -vy + limite.getHeight());
         } else if (vx <= 0 && vy <= 0) {
-            rect = new BoundingBox(limite.getMinX() + vx, vy + limite.getMinY(), limite.getWidth() + vx, vy + limite.getHeight());
+            rect = new BoundingBox(limite.getMinX() + vx, vy + limite.getMinY(), limite.getWidth() - vx, -vy + limite.getHeight());
         } else {
-            rect = new BoundingBox(vx + limite.getMinX(), limite.getMinY(), limite.getWidth() + vx, vy + limite.getHeight());
+            rect = new BoundingBox(vx + limite.getMinX(), limite.getMinY(), limite.getWidth() - vx, vy + limite.getHeight());
         }
 
         LinkedList<Objet> objs = new LinkedList<>();
-        double hauteurMin = Double.POSITIVE_INFINITY;
-        double largeurMin = Double.POSITIVE_INFINITY;
+        double hauteurMin = Double.MAX_VALUE;
+        double largeurMin = Double.MAX_VALUE;
 
         for (Iterator<Objet> iterator = objets.iterator(); iterator.hasNext(); ) {
             Objet next = iterator.next();
             Bounds limite1 = next.getLimite();
 
-            if (rect.intersects(limite1)) {
+            if (mobile != next && rect.intersects(limite1)) {
                 hauteurMin = Math.min(hauteurMin, limite1.getHeight());
                 largeurMin = Math.min(largeurMin, limite1.getWidth());
                 objs.add(next);
             }
         }
 
-        if (vx >= largeurMin || vy >= hauteurMin) {
+        if (Math.abs(vx) >= largeurMin || Math.abs(vy) >= hauteurMin) {
             deplace(mobile, objs, vx / 2, vy / 2);
             deplace(mobile, objs, vx / 2, vy / 2);
         } else {
@@ -75,38 +75,42 @@ public class Moteur_Physique {
     }
 
     private static void affine(Objet_Mobile mobile, LinkedList<Objet> objs, double vx, double vy) {
+
         Point2D position = mobile.getPosition();
         double xMin = position.getX();
         double yMin = position.getY();
         double xMax = xMin + vx;
         double yMax = yMin + vy;
 
-        while (xMax > xMin) {
-            double x = (xMax + xMin) / 2;
-            mobile.setPosition(x, yMin);
+        while (xMax != xMin) {
+            double x = xMin;
+            mobile.setPosition(x += Math.signum(vx), yMin);
             if (collision(mobile, objs)) {
-                xMax = x;
+                mobile.setPosition(xMin, yMin);
+                break;
             } else {
                 xMin = x;
             }
         }
 
-        while (yMax > yMin) {
-            double y = (yMax + yMin) / 2;
-            mobile.setPosition(xMin, y);
+        while (yMax != yMin) {
+            double y = yMin;
+            mobile.setPosition(xMin, y += Math.signum(vy));
             if (collision(mobile, objs)) {
-                yMax = y;
+                mobile.setPosition(xMin, yMin);
+                break;
             } else {
                 yMin = y;
             }
         }
+
     }
 
     private static boolean collision(Objet obj, Iterable<Objet> objs) {
         Bounds limite = obj.getLimite();
         for (Iterator<Objet> iterator = objs.iterator(); iterator.hasNext(); ) {
             Objet next = iterator.next();
-            if (limite.intersects(next.getLimite())) {
+            if (obj != next && !next.isFranchissable() && limite.intersects(next.getLimite())) {
                 return true;
             }
         }
