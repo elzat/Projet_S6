@@ -12,6 +12,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -19,7 +20,6 @@ import javafx.util.Duration;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
 
 /**
  * Created by crede on 28/01/2017.
@@ -38,13 +38,25 @@ public class TestMP extends Application {
         double xLibre = 0, yLibre = 0;
 
         LinkedList<Objet> objets = new LinkedList<>();
-        Random rand = new Random();
-        for (int i = 0; i < 10; i++) {
 
-            for (int j = 0; j < 10; j++) {
+        boolean[][] tab =
+                {{false, false, false, false, false, false, false, false},
+                {false, true, false, true, true, true, true, false},
+                {false, true, false, true, false, false, true, false},
+                {false, true, false, true, false, true, true, false},
+                {false, true, false, true, false, false, true, false},
+                {false, true, false, true, true, true, true, false},
+                {false, true, false, true, false, false, true, false},
+                {false, true, false, true, false, false, true, false},
+                {false, true, true, true, false, true, true, false},
+                {false, false, false, false, false, false, false, false}};
+
+        for (int i = 0; i < tab.length; i++) {
+
+            for (int j = 0; j < tab[i].length; j++) {
                 int finalI = i;
                 int finalJ = j;
-                boolean franchissable = rand.nextInt(100) < 50;
+                boolean franchissable = tab[i][j];
                 if (franchissable) {
                     xLibre = i;
                     yLibre = j;
@@ -80,7 +92,7 @@ public class TestMP extends Application {
         Objet_Mobile perso = new Objet_Mobile() {
 
             Point2D vitesse = new Point2D(0, 0);
-            BoundingBox limite = new BoundingBox(finalXLibre * 16, finalYLibre * 16, 8, 8);
+            BoundingBox limite = new BoundingBox(finalXLibre * 16, finalYLibre * 16, 14, 14);
 
 
             @Override
@@ -90,7 +102,10 @@ public class TestMP extends Application {
 
             @Override
             public void setVitesse(Point2D v) {
+
+
                 vitesse = v;
+                System.err.println(vitesse);
             }
 
             @Override
@@ -126,28 +141,38 @@ public class TestMP extends Application {
 
         mobile.add(perso);
 
-        Canvas canvs = new Canvas(200, 200);
+        Canvas canvs = new Canvas(500, 500);
 
         primaryStage.setScene(new Scene(new Group(canvs)));
+
+        canvs.heightProperty().bind(primaryStage.heightProperty());
+        canvs.widthProperty().bind(primaryStage.widthProperty());
 
         canvs.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 switch (event.getCode()) {
                     case Z:
-                        perso.setVitesse(0, -4);
+                        System.err.println(KeyCode.Z);
+                        perso.setVitesse(perso.getVitesse().add(0, -1));
                         break;
 
                     case S:
-                        perso.setVitesse(0, 4);
+
+                        System.err.println(KeyCode.S);
+                        perso.setVitesse(perso.getVitesse().add(0, 1));
                         break;
 
                     case Q:
-                        perso.setVitesse(-4, 0);
+
+                        System.err.println(KeyCode.Q);
+                        perso.setVitesse(perso.getVitesse().add(-1, 0));
                         break;
 
                     case D:
-                        perso.setVitesse(4, 0);
+
+                        System.err.println(KeyCode.D);
+                        perso.setVitesse(perso.getVitesse().add(1, 0));
                         break;
 
                     case SPACE:
@@ -175,8 +200,8 @@ public class TestMP extends Application {
         AnimationTimer at = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                draw(canvs.getGraphicsContext2D(), objets);
-                draw(canvs.getGraphicsContext2D(), mobile);
+                draw(canvs, objets);
+                draw(canvs, mobile);
                 //System.out.println(perso.getVitesse());
             }
         };
@@ -188,7 +213,9 @@ public class TestMP extends Application {
 
     }
 
-    private void draw(GraphicsContext context, Iterable<? extends Objet> obj) {
+    private void draw(Canvas canvas, Iterable<? extends Objet> obj) {
+        int ratio =2;
+        GraphicsContext context = canvas.getGraphicsContext2D();
         context.setStroke(Color.WHITE);
         for (Iterator<? extends Objet> iterator = obj.iterator(); iterator.hasNext(); ) {
             Objet next = iterator.next();
@@ -200,8 +227,8 @@ public class TestMP extends Application {
                 context.setFill(Color.RED);
             }
             Bounds limite = next.getLimite();
-            context.fillRect(limite.getMinX(), limite.getMinY(), limite.getWidth(), limite.getHeight());
-            context.strokeRect(limite.getMinX(), limite.getMinY(), limite.getWidth(), limite.getHeight());
+            context.fillRect(limite.getMinX()*ratio, limite.getMinY()*ratio, limite.getWidth()*ratio, limite.getHeight()*ratio);
+            //context.strokeRect(limite.getMinX()*ratio, limite.getMinY()*ratio, limite.getWidth()*ratio, limite.getHeight()*ratio);
         }
     }
 
