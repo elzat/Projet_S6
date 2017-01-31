@@ -70,37 +70,39 @@ public class Moteur_Physique {
             deplace(mobile, objs, (int)vx / 2, (int)vy / 2);
             deplace(mobile, objs, vx-(int)vx / 2, vy-(int)vy / 2);
         } else {
-            affine(mobile, objs, (int)vx, (int)vy);
+            affine(mobile, objs, vx, vy);
         }
     }
 
-    private static void affine(Objet_Mobile mobile, LinkedList<Objet> objs, int vx, int vy) {
-System.err.println("vx= "+vx+"\tvy= "+vy);
+    private static void affine(Objet_Mobile mobile, LinkedList<Objet> objs, double vx, double vy) {
         Point2D position = mobile.getPosition();
         double xMin = position.getX();
         double yMin = position.getY();
         double xMax = xMin + vx;
         double yMax = yMin + vy;
 
-
-        while (xMax != xMin) {
+        while (Math.abs(xMax - xMin) >= 0.25) {
             double x = xMin;
-            mobile.setPosition(x += vx, yMin);
+            double v = Math.abs(vx) > 1 ? Math.signum(vx) : vx;
+            mobile.setPosition(x += v, yMin);
             if (collision(mobile, objs)) {
                 mobile.setPosition(xMin, yMin);
                 break;
             } else {
+                vx -= v;
                 xMin = x;
             }
         }
 
-        while (yMax != yMin) {
+        while (Math.abs(yMax - yMin) >= 0.25) {
             double y = yMin;
-            mobile.setPosition(xMin, y += vy);
+            double v = Math.abs(vy) > 1 ? Math.signum(vy) : vy;
+            mobile.setPosition(xMin, y += v);
             if (collision(mobile, objs)) {
                 mobile.setPosition(xMin, yMin);
                 break;
             } else {
+                vy -= v;
                 yMin = y;
             }
         }

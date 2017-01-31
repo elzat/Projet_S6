@@ -12,8 +12,11 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyCode;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -26,10 +29,15 @@ import java.util.LinkedList;
  */
 public class TestMP extends Application {
 
+
+    public static Image set = new Image(TestMP.class.getResourceAsStream("/jeu/image/tileset.png"));
+    public static Image vide = new WritableImage(set.getPixelReader(), 0, 0, 16, 16);
+    public static Image mur = new WritableImage(set.getPixelReader(), 2 * 16, 0, 16, 16);
+    public static Image perso = new WritableImage(set.getPixelReader(), 1 * 16, 0, 16, 16);
+
     public static void main() {
         launch();
     }
-
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -41,15 +49,15 @@ public class TestMP extends Application {
 
         boolean[][] tab =
                 {{false, false, false, false, false, false, false, false},
-                {false, true, false, true, true, true, true, false},
-                {false, true, false, true, false, false, true, false},
-                {false, true, false, true, false, true, true, false},
-                {false, true, false, true, false, false, true, false},
-                {false, true, false, true, true, true, true, false},
-                {false, true, false, true, false, false, true, false},
-                {false, true, false, true, false, false, true, false},
-                {false, true, true, true, false, true, true, false},
-                {false, false, false, false, false, false, false, false}};
+                        {false, true, false, true, true, true, true, false},
+                        {false, true, false, true, false, false, true, false},
+                        {false, true, false, true, false, true, true, false},
+                        {false, true, false, true, false, false, true, false},
+                        {false, true, false, true, true, true, true, false},
+                        {false, true, false, true, false, false, true, false},
+                        {false, true, false, true, false, false, true, false},
+                        {false, true, true, true, false, true, true, false},
+                        {false, false, false, false, false, false, false, false}};
 
         for (int i = 0; i < tab.length; i++) {
 
@@ -63,7 +71,7 @@ public class TestMP extends Application {
                 }
                 objets.add(new Objet() {
 
-                    BoundingBox limite = new BoundingBox(finalI * 16, finalJ * 16, 16, 16);
+                    BoundingBox limite = new BoundingBox(finalI * 64, finalJ * 64, 64, 64);
 
 
                     @Override
@@ -89,22 +97,33 @@ public class TestMP extends Application {
         LinkedList<Objet_Mobile> mobile = new LinkedList<>();
         double finalXLibre = xLibre;
         double finalYLibre = yLibre;
-        Objet_Mobile perso = new Objet_Mobile() {
+
+
+        Perso perso = new Perso() {
 
             Point2D vitesse = new Point2D(0, 0);
-            BoundingBox limite = new BoundingBox(finalXLibre * 16, finalYLibre * 16, 14, 14);
+            BoundingBox limite = new BoundingBox(finalXLibre * 64 + 1, finalYLibre * 64 + 1, 32, 32);
 
+            boolean go = false;
+            Point2D toGo;
 
             @Override
             public Point2D getVitesse() {
+                if (go) {
+                    if (getPosition().distance(toGo) > 5)
+                        setVitesse(toGo.subtract(getPosition()));
+                    else {
+                        stopGo();
+                    }
+                }
+
+
                 return vitesse;
             }
 
             @Override
             public void setVitesse(Point2D v) {
-
-
-                vitesse = v;
+                vitesse = v.normalize().multiply(5);
                 System.err.println(vitesse);
             }
 
@@ -137,6 +156,20 @@ public class TestMP extends Application {
             public boolean isFranchissable() {
                 return false;
             }
+
+            public void Go(Point2D pos) {
+                go = true;
+                toGo = pos;
+            }
+
+            @Override
+            public void stopGo() {
+
+                if (go)
+                    setVitesse(Point2D.ZERO);
+                go = false;
+            }
+
         };
 
         mobile.add(perso);
@@ -153,30 +186,75 @@ public class TestMP extends Application {
             public void handle(KeyEvent event) {
                 switch (event.getCode()) {
                     case Z:
-                        System.err.println(KeyCode.Z);
-                        perso.setVitesse(perso.getVitesse().add(0, -1));
+                        //  System.err.println(KeyCode.Z);
+                        perso.stopGo();
+                        perso.setVitesse(perso.getVitesse().getX(), -1);
                         break;
 
                     case S:
 
-                        System.err.println(KeyCode.S);
-                        perso.setVitesse(perso.getVitesse().add(0, 1));
+                        //  System.err.println(KeyCode.S);
+                        perso.stopGo();
+                        perso.setVitesse(perso.getVitesse().getX(), 1);
+
                         break;
 
                     case Q:
 
-                        System.err.println(KeyCode.Q);
-                        perso.setVitesse(perso.getVitesse().add(-1, 0));
+                        // System.err.println(KeyCode.Q);
+                        perso.stopGo();
+                        perso.setVitesse(-1, perso.getVitesse().getY());
+
                         break;
 
                     case D:
 
-                        System.err.println(KeyCode.D);
-                        perso.setVitesse(perso.getVitesse().add(1, 0));
+                        //System.err.println(KeyCode.D);
+                        perso.stopGo();
+                        perso.setVitesse(1, perso.getVitesse().getY());
+
+                        break;
+
+                    case SPACE:
+                        perso.stopGo();
+                        perso.setVitesse(0, 0);
+
+                }
+            }
+        });
+
+        canvs.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                switch (event.getCode()) {
+                    case Z:
+                    case S:
+
+                        //System.err.println(event.getCode());
+                        perso.setVitesse(perso.getVitesse().getX(), 0);
+                        break;
+
+                    case Q:
+                    case D:
+
+                        //System.err.println(event.getCode());
+                        perso.setVitesse(0, perso.getVitesse().getY());
                         break;
 
                     case SPACE:
                         perso.setVitesse(0, 0);
+                }
+
+            }
+        });
+
+
+        canvs.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.getButton().equals(MouseButton.PRIMARY)) {
+                    Point2D pos = new Point2D(event.getX(), event.getY());
+                    perso.Go(pos);
                 }
             }
         });
@@ -193,13 +271,14 @@ public class TestMP extends Application {
                 };
             }
         };
-        SS.setPeriod(Duration.millis(240));
+        SS.setPeriod(Duration.millis(25));
         SS.start();
 
 
         AnimationTimer at = new AnimationTimer() {
             @Override
             public void handle(long now) {
+
                 draw(canvs, objets);
                 draw(canvs, mobile);
                 //System.out.println(perso.getVitesse());
@@ -214,22 +293,48 @@ public class TestMP extends Application {
     }
 
     private void draw(Canvas canvas, Iterable<? extends Objet> obj) {
-        int ratio =2;
+        int ratio = 1;
+        Image img = vide;
         GraphicsContext context = canvas.getGraphicsContext2D();
-        context.setStroke(Color.WHITE);
+        context.setStroke(Color.BLACK);
         for (Iterator<? extends Objet> iterator = obj.iterator(); iterator.hasNext(); ) {
             Objet next = iterator.next();
             if (next instanceof Objet_Mobile) {
                 context.setFill(Color.GREEN);
+                img = perso;
             } else if (next.isFranchissable()) {
                 context.setFill(Color.BLUE);
+                img = vide;
             } else {
                 context.setFill(Color.RED);
+                img = mur;
             }
             Bounds limite = next.getLimite();
-            context.fillRect(limite.getMinX()*ratio, limite.getMinY()*ratio, limite.getWidth()*ratio, limite.getHeight()*ratio);
-            //context.strokeRect(limite.getMinX()*ratio, limite.getMinY()*ratio, limite.getWidth()*ratio, limite.getHeight()*ratio);
+
+
+//context.drawImage(img,limite.getMinX(),limite.getMinY());
+            context.fillRect(limite.getMinX() * ratio, limite.getMinY() * ratio, limite.getWidth() * ratio, limite.getHeight() * ratio);
+            // context.strokeRect(limite.getMinX()*ratio, limite.getMinY()*ratio, limite.getWidth()*ratio, limite.getHeight()*ratio);
+            // rayure(context, limite.getMinX() * ratio, limite.getMinY() * ratio, limite.getWidth() * ratio, limite.getHeight() * ratio);
         }
+    }
+
+    private void rayure(GraphicsContext graphicsContext, double x, double y, double l, double h) {
+        graphicsContext.setLineWidth(3);
+        for (int i = 0; i < l; i += 3) {
+            if (graphicsContext.getStroke().equals(Color.BLACK)) {
+                graphicsContext.setStroke(Color.WHITE);
+            } else
+                graphicsContext.setStroke(Color.BLACK);
+            graphicsContext.strokeLine(x + i, y, x + i, y);
+        }
+    }
+
+
+    private interface Perso extends Objet_Mobile {
+        void Go(Point2D pos);
+
+        void stopGo();
     }
 
 }
