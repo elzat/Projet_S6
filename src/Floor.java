@@ -1,5 +1,3 @@
-import javafx.geometry.Dimension2D;
-
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
@@ -10,6 +8,6 @@ public interface Floor {
 
     Collection<? extends Item> getItemFromSquare(Rectangle2D square);
 
-    Dimension2D getDimension();
+    DimensionInt2D getDimension();
 
 }
