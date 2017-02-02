@@ -1,33 +1,21 @@
-import javafx.beans.NamedArg;
 import javafx.geometry.Point2D;
-
-import java.math.BigInteger;
 
 /**
  * Created by crede on 02/02/2017.
  */
-public class PointInt2D {
+public class PointInt2D extends Point2D {
 
-    Point2D point2D;
 
     public PointInt2D(int x, int y) {
-        point2D = new Point2D(x, y);
-    }
-
-    public int getX() {
-        return (int) point2D.getX();
-    }
-
-    public int getY() {
-        return (int) point2D.getY();
+        super(x, y);
     }
 
     public PointInt2D add(int x, int y) {
-        return new PointInt2D(getX() + x, getY() + y);
+        return new PointInt2D((int) getX() + x, (int) getY() + y);
     }
 
     public PointInt2D add(PointInt2D point) {
-        return add(point.getX(), point.getY());
+        return add((int) point.getX(), (int) point.getY());
     }
 
     public PointInt2D subtract(int x, int y) {
@@ -35,16 +23,16 @@ public class PointInt2D {
     }
 
     public PointInt2D multiply(int factor) {
-        return new PointInt2D(getX() * factor, getY() * factor);
+        return new PointInt2D((int) getX() * factor, (int) getY() * factor);
     }
 
     public PointInt2D subtract(PointInt2D point) {
-        return subtract(point.getX(), point.getY());
+        return subtract((int) point.getX(), (int) point.getY());
     }
 
     public PointInt2D normalize() {
-        int a = Math.abs(getX());
-        int b = Math.abs(getY());
+        int a = (int) Math.abs(getX());
+        int b = (int) Math.abs(getY());
         if (a == 0 || b == 0) {
             return this;
         }
@@ -61,11 +49,6 @@ public class PointInt2D {
             b = r;
         } while (r != 0);
 
-        return new PointInt2D(getX() / a, getY() / a);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return point2D.equals(obj);
+        return new PointInt2D((int) getX() / a, (int) getY() / a);
     }
 }
